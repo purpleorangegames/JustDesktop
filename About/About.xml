@@ -3,6 +3,7 @@
   <name>JustDesktop</name>
   <author>tiagocc0</author>
   <packageId>tiagocc0.justdesktop</packageId>
+  <url>https://github.com/purpleorangegames/JustDesktop</url>
   <modVersion>0.1.0</modVersion>
   <supportedVersions>
     <li>1.7</li>
@@ -71,7 +72,7 @@ Window look
 - Flat rounded windows in a color you pick, with modern buttons, checkboxes, tabs, sliders and text fields inside
 - Pick an accent color for lines and highlights, and a text color if you use a light window color
 - This goes for the game's menus and dialogs too, from the main menu to trade and tooltips
-- Some windows are redone: Research (full height, projects as cards, drag to move around, Shift+click to queue), Schedule, History graphs, Factions (goodwill as a meter) and Quests (an All tab first)
+- Some windows are redone: Research (full height, projects as cards, drag to move around, Shift+click to queue), Schedule, History graphs, Factions and Quests
 
 Selection card
 - Selecting a pawn shows a smaller card with health, mood and needs as bars, skills with their level in a badge colored by passion, and the tabs as small icons
@@ -112,7 +113,7 @@ Screen edges
 - On the world map, a town that trades has a button to send you a letter when its goods are restocked
 
 Caravans and trade
-- Gender and age icons on the animals' rows when forming a caravan, loading pods or trading, and for colonists too if you want
+- Gender and age icons on animals when forming a caravan, loading pods or trading, colonists too if you want
 - What a trader buys has an All tab and a search box
 
 Profiles
@@ -124,6 +125,8 @@ Profiles
 Works with tabs from other mods too.
 
 You can add it mid playthrough. It keeps a few things in your save: the restock letters, the research queue, who you picked to build what and, if you turn that option on, the calendar's events. To remove the mod, load your game, go to the Profiles page in the mod options and use the button at the bottom, save, and then you can remove it without errors. If you skip that it still works, you only get a few harmless errors once when loading.
+
+Non Steam version: https://github.com/purpleorangegames/JustDesktop
 
 AI was used to help code/fix issues</description>
 </ModMetaData>
