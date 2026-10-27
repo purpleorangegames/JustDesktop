@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<JustDesktopProfile>
+	<size>1.6</size>
+	<windowLift>0</windowLift>
+	<openAt>Cascade</openAt>
+	<panePlace>GamePlace</panePlace>
+	<paneDraftedRow>False</paneDraftedRow>
+	<hudSpeedAbove>False</hudSpeedAbove>
+	<hudOpacity>0.82</hudOpacity>
+	<colonistBarZoom>1</colonistBarZoom>
+	<colonistBarGroupHere>RGBA(1.000, 1.000, 1.000, 0.050)</colonistBarGroupHere>
+	<colonistBarGroupAway>RGBA(1.000, 1.000, 1.000, 0.030)</colonistBarGroupAway>
+	<colonistBarBarBorder>False</colonistBarBarBorder>
+	<architectCentered>False</architectCentered>
+	<architectItemSize>64</architectItemSize>
+	<architectNames>True</architectNames>
+</JustDesktopProfile>

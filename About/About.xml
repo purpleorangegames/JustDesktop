@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>JustDesktop</name>
+  <author>tiagocc0</author>
+  <packageId>tiagocc0.justdesktop</packageId>
+  <modVersion>0.1.0</modVersion>
+  <supportedVersions>
+    <li>1.7</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+  </loadAfter>
+  <description>Makes the RimWorld UI work more like a desktop. The bottom bar becomes a dock or a taskbar, the tabs open as windows, and most of the screen gets a cleaner, rounded look.
+
+Features
+- A modern taskbar or dock for the bottom bar
+- Option to turn on several windows open at once, like an OS
+- A smaller selection card with bars and skills, for pawns, buildings, items, plants and zones
+- Gizmos in a compact grid next to the card
+- A simple minimap, only the ground, water, rock and buildings, no pawns or creatures
+- Notifications that stay, so you can open letters again after dismissing them
+- A calendar of the quadrum, and an option to not lose old events
+- Able to select a builder for a plan
+- Able to select to get notified when a town restocks its goods
+- Select which resources to show at the top left
+- Mood, health and status icons on the colonist bar
+- A queue for research
+- Favorites and recent things in the Architect
+- Gender and age icons when forming caravans and trading, and a search in what a trader buys
+- Profiles to save your setup and switch between them
+
+Almost everything can be turned off or changed in the mod options, the pages there follow the parts below. Right click the Menu button on the dock to open them. There's a search box at the top if you're looking for something.
+
+There might be things not finished yet as I kept doing what I saw while playing, if you notice something still in the old UI feel free to tell me.
+
+Also I use 2560x1080, maybe a few tests with 1920x1080 but if something is wrong with size and placement, report it and I will check.
+
+There are many options and again, I did them as I was playing so not all of them might work well with each other, so I left a few default options so you can check and reset back to them if something feels off or goes wrong.
+
+The Default profile is how I like to play.
+
+There is a way to add custom icons as well.
+
+And if you need compatibility with another mod let me know, if it's not too hard I will try.
+
+Dock and taskbar
+- Pick a centered dock with only icons (the name shows when you hover) or a taskbar across the bottom with the names, where Architect is the start button
+- Put it left, center or right, from 75% to 200% size
+- Background behind the whole bar, behind each icon or none, with your own color and opacity
+- A line on each icon, below or above it, in the accent color. The open one gets a brighter line
+- Hovering shows the game's tooltip or only the name and shortcut, and the button can get lighter, solid or clear. Icons can grow under the mouse
+- A few icon sets to pick from for each button, or your own pictures. The icon window has a button to open the folder for them
+- The rest of the game moves up to fit the bar, at any size
+
+Windows
+- Tabs open as windows with a title bar to drag them, maximize and close
+- One window at a time like the game, or several open at once (option). With several, clicking a button brings its window to the front, and you choose if clicking the map closes the front one, all of them or none
+- New windows open centered above the dock, where the game puts them, or a bit above the one in front
+- A window you moved opens where you left it. Right click its button on the dock to put it back
+- Option to lift the windows and the selection higher, for a big dock
+
+Window look
+- Flat rounded windows in a color you pick, with modern buttons, checkboxes, tabs, sliders and text fields inside
+- Pick an accent color for lines and highlights, and a text color if you use a light window color
+- This goes for the game's menus and dialogs too, from the main menu to trade and tooltips
+- Some windows are redone: Research (full height, projects as cards, drag to move around, Shift+click to queue), Schedule, History graphs, Factions (goodwill as a meter) and Quests (an All tab first)
+
+Selection card
+- Selecting a pawn shows a smaller card with health, mood and needs as bars, skills with their level in a badge colored by passion, and the tabs as small icons
+- The card can sit where the game puts it, centered above the dock, or next to what you selected, from 80% to 160% size
+- Skills as full names, the first three letters, or only icons
+- Buildings, items, plants and zones get a card too, with hit points, fuel, growth or how full a stockpile is, and the game's text about it
+- Several things selected show a row with health and mood for each pawn, click a name to select only them
+- The tab panels (Needs, Character, Health, Social, Gear, Log) are laid out anew next to the card
+- On the world map, the selected town, site or caravan gets a card too
+- Only our own pawns, prisoners and slaves show what they're doing
+- Works with RimHUD, you choose which one shows the pane
+
+Gizmos
+- The buttons next to the card as flat rounded tiles, cooldowns as a thin bar
+- Option to put them in a grid of small squares next to the card, the name shows when you hover one
+- Hemogen, deathrest, psyfocus and the other bars as small cards next to it, drag the bar to set the target
+- One row in the middle when drafted (option)
+- Pick who builds: a button on the plan of anything that gets a quality lists everyone with construction on, with their skill, the ones with an inspiration or role that helps at the top. Only the one you pick builds it, anyone can still bring the materials
+
+Architect
+- Categories as rounded buttons with icons, and the menu on a card
+- Favorites and Recent at the top. Right click anything to add it to or remove it from the favorites, the last ten things you picked go to Recent
+- Option to have the menu in the middle with the items on its sides. Left click a category to open it on the left, right click for the right
+
+Colonist bar
+- Each colonist on a rounded tile with thin mood and health bars, status icons as small badges and the name in a pill
+- Size, zoom on the face, bars inside or under the tile, names always, on hover or never, and the background color behind each group
+
+Screen edges
+- Game speed, date, weather, alerts, letters, resources, messages and what's under the mouse on rounded cards, with their opacity
+- With the dock in the middle they can sit next to it, and the game speed can go right above it
+- Modern speed buttons
+- Click the date for a calendar of the quadrum, the days something happened colored by its letter, click one to open it
+- The game only keeps about 200 letters and messages, so older quadrums go empty. There's an option, off by default, to keep the calendar's events in your save
+- A bell under the letters opens the notification center, with the letters waiting and the ones from today and yesterday
+- An eye button on the resources lets you hide the ones you don't care about
+- A minimap, off by default, from a button at the top right. Click or drag on it to move the camera, right click to close it
+- On the world map, a town that trades has a button to send you a letter when its goods are restocked
+
+Caravans and trade
+- Gender and age icons on the animals' rows when forming a caravan, loading pods or trading, and for colonists too if you want
+- What a trader buys has an All tab and a search box
+
+Profiles
+- Save all the mod's settings under a name and load them later
+- A few suggested setups come with the mod to try: Default (mine), Alternative, Small dock and Taskbar
+- A button puts everything back to the defaults
+- Another one takes this mod's data out of the game you have open, for when you want to remove the mod
+
+Works with tabs from other mods too.
+
+You can add it mid playthrough. It keeps a few things in your save: the restock letters, the research queue, who you picked to build what and, if you turn that option on, the calendar's events. To remove the mod, load your game, go to the Profiles page in the mod options and use the button at the bottom, save, and then you can remove it without errors. If you skip that it still works, you only get a few harmless errors once when loading.
+
+AI was used to help code/fix issues</description>
+</ModMetaData>

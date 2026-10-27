@@ -1,0 +1,11 @@
+obj/
+bin/
+.vs/
+.idea/
+*.user
+# kept on this PC only, not in the public repo
+CLAUDE.md
+.claude/
+update.sh
+.github/
+Art/Dock/
