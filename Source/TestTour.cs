@@ -21,6 +21,8 @@ public static class TestTour
     private static int frame;
     // JUSTDESKTOP_TEST_PRETTY=1 for screenshots to show: midday and the camera closer to the colony
     private static readonly bool pretty = Environment.GetEnvironmentVariable("JUSTDESKTOP_TEST_PRETTY") == "1";
+    // JUSTDESKTOP_TEST_QUIT=1 quits the game like the menu does once the tour is done, to time how long closing takes
+    private static readonly bool quit = Environment.GetEnvironmentVariable("JUSTDESKTOP_TEST_QUIT") == "1";
     // something a step does a few frames later, when the world map has to be up first
     private static Action later;
 
@@ -375,6 +377,11 @@ public static class TestTour
             {
                 CloseAll();
                 ScreenshotTaker.TakeNonSteamShot("tour-done");
+            }
+            if (quit && at == 40 && i == steps.Count)
+            {
+                Log.Message("[JustDesktop] test quit");
+                Root.Shutdown();
             }
             return;
         }

@@ -67,7 +67,7 @@ public static class Pane
             }
             if (t is Pawn p)
             {
-                return p.RaceProps.Humanlike || p.RaceProps.Animal ? p : null;
+                return p;
             }
             return S.paneThings ? t : null;
         }
@@ -542,7 +542,7 @@ public static class Pane
             {
                 continue;
             }
-            if (t is Pawn p && (p.RaceProps.Humanlike || p.RaceProps.Animal))
+            if (t is Pawn p)
             {
                 multiPawns.Add(p);
             }
