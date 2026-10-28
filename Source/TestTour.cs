@@ -27,6 +27,27 @@ public static class TestTour
     private static Action later;
 
     private static Map Map => Find.CurrentMap;
+
+    private static void Gear(bool? swap)
+    {
+        Pawn p = Map.mapPawns.FreeColonistsSpawned.FirstOrDefault(c => c.inventory != null && c.inventory.innerContainer.Any(t => t.def.IsWeapon))
+            ?? Map.mapPawns.FreeColonistsSpawned.FirstOrDefault(c => c.equipment?.Primary != null);
+        if (p == null)
+        {
+            Log.Warning("[JustDesktop] tour gear: no colonist with a weapon");
+            return;
+        }
+        if (swap == true && p.inventory.innerContainer.FirstOrDefault(t => t.def.IsWeapon) is ThingWithComps other)
+        {
+            GearPanel.SwapOrPutAway(p, other, true);
+        }
+        if (swap == false && p.equipment.Primary is { } held)
+        {
+            GearPanel.SwapOrPutAway(p, held, false);
+        }
+        Log.Message("[JustDesktop] tour gear: " + p.LabelShort + " holds " + (p.equipment.Primary?.LabelShort ?? "nothing") + ", inventory weapons: " + string.Join(", ", p.inventory.innerContainer.Where(t => t.def.IsWeapon).Select(t => t.LabelShort)));
+        Select(p, p.GetInspectTabs().FirstOrDefault(t => t is ITab_Pawn_Gear)?.GetType());
+    }
     private static Pawn Colonist => Map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
 
     private static void Select(object thing, Type tab = null)
@@ -131,6 +152,19 @@ public static class TestTour
         list.Add(("genes", () => Select(Colonist, typeof(ITab_Genes))));
         list.Add(("infocard", () => Find.WindowStack.Add(new Dialog_InfoCard(Colonist))));
         list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Colonist))));
+        // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
+        list.Add(("gearswap", () => Gear(null)));
+        list.Add(("gearswapped", () => Gear(true)));
+        list.Add(("gearputaway", () => Gear(false)));
+        list.Add(("gearmenu", () =>
+        {
+            Gear(null);
+            Pawn p = Find.Selector.SingleSelectedThing as Pawn;
+            if (p?.inventory.innerContainer.FirstOrDefault(t => t.def.IsWeapon) is { } weapon && p.GetInspectTabs().FirstOrDefault(t => t is ITab_Pawn_Gear) is ITab_Pawn_Gear tab)
+            {
+                later = () => GearPanel.Menu(tab, p, weapon, true, true, false);
+            }
+        }));
         list.Add(("apparel", () => Find.WindowStack.Add(new Dialog_ManageApparelPolicies(null))));
         list.Add(("food", () => Find.WindowStack.Add(new Dialog_ManageFoodPolicies(null))));
         list.Add(("drugs", () => Find.WindowStack.Add(new Dialog_ManageDrugPolicies(null))));

@@ -11,7 +11,9 @@ namespace JustDesktop;
 
 // the Gear tab laid out to fit, as wide as the card: mass carried as a bar, the comfortable temperatures, overall
 // armor as three bars in a row, then equipment, apparel and inventory as rows with icon, name, mass and the game's
-// buttons (eat now, drop, info). Past a certain height the rows scroll
+// buttons (eat now, drop, info). Past a certain height the rows scroll. Weapons also get a swap button (one in the
+// inventory takes the place of the one in hand) or a put away one (the one in hand goes to the inventory), and the same
+// in a right click menu, like Combat Extended's gear tab. With CE it's CE's own switch, so its ammo and bulk stay right
 public static class GearPanel
 {
     private static float Scale => Pane.Scale;
@@ -30,6 +32,11 @@ public static class GearPanel
     private static readonly Func<ITab_Pawn_Gear, Pawn, bool> showArmor = AccessTools.MethodDelegate<Func<ITab_Pawn_Gear, Pawn, bool>>(AccessTools.Method(typeof(ITab_Pawn_Gear), "ShouldShowOverallArmor"));
 
     private static Vector2 scroll;
+    private static Texture2D swapIcon, putAwayIcon;
+    private static Texture2D SwapIcon => swapIcon ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Pane/Swap");
+    private static Texture2D PutAwayIcon => putAwayIcon ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Pane/PutAway");
+    private static readonly Type ceInventory = AccessTools.TypeByName("CombatExtended.CompInventory");
+    private static readonly System.Reflection.MethodInfo ceSwitch = ceInventory == null ? null : AccessTools.Method(ceInventory, "TrySwitchToWeapon");
     private static readonly List<Thing> things = new();
 
     public static Vector2 Size(ITab_Pawn_Gear tab, Pawn p)
@@ -299,15 +306,18 @@ public static class GearPanel
             }
             if (Widgets.ButtonImage(drop, TexButton.Drop, locked ? Style.Disabled : Style.Dim, locked ? Style.Disabled : Color.white, !locked) && !locked)
             {
-                void Act()
-                {
-                    SoundDefOf.Tick_High.PlayOneShotOnCamera();
-                    interfaceDrop(tab, thing);
-                }
-                if (!ModsConfig.BiotechActive || !MechanitorUtility.TryConfirmBandwidthLossFromDroppingThing(p, thing, Act))
-                {
-                    Act();
-                }
+                Drop(tab, p, thing);
+            }
+        }
+        bool swappable = Swappable(tab, p, thing, inventory);
+        if (swappable)
+        {
+            Rect swap = Next();
+            string cant = inventory ? CantEquip(p, (ThingWithComps)thing) : CantPutAway(p, (ThingWithComps)thing);
+            TooltipHandler.TipRegion(swap, cant ?? (inventory ? EquipTip(p, thing) : PutAwayTip(thing)));
+            if (Widgets.ButtonImage(swap, inventory ? SwapIcon : PutAwayIcon, cant != null ? Style.Disabled : Style.Dim, cant != null ? Style.Disabled : Color.white, cant == null) && cant == null)
+            {
+                SwapOrPutAway(p, (ThingWithComps)thing, inventory);
             }
         }
         if (canControlColonist(tab) && FoodUtility.WillIngestFromInventoryNow(p, thing))
@@ -354,5 +364,96 @@ public static class GearPanel
         {
             TooltipHandler.TipRegion(name, thing.GetTooltip());
         }
+        if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && Mouse.IsOver(row))
+        {
+            Event.current.Use();
+            Menu(tab, p, thing, inventory, swappable, locked);
+        }
+    }
+
+    private static void Drop(ITab_Pawn_Gear tab, Pawn p, Thing thing)
+    {
+        void Act()
+        {
+            SoundDefOf.Tick_High.PlayOneShotOnCamera();
+            interfaceDrop(tab, thing);
+        }
+        if (!ModsConfig.BiotechActive || !MechanitorUtility.TryConfirmBandwidthLossFromDroppingThing(p, thing, Act))
+        {
+            Act();
+        }
+    }
+
+    // a weapon in hand, or one in the inventory, of a colonist that can be told what to do
+    private static bool Swappable(ITab_Pawn_Gear tab, Pawn p, Thing thing, bool inventory) =>
+        canControlColonist(tab) && p.equipment != null && p.inventory != null && thing is ThingWithComps w && w.def.IsWeapon && w.TryGetComp<CompEquippable>() != null
+        && (inventory || thing == p.equipment.Primary);
+
+    private static string CantEquip(Pawn p, ThingWithComps weapon)
+    {
+        if (!EquipmentUtility.CanEquip(weapon, p, out string reason))
+        {
+            return "CannotEquip".Translate(weapon.LabelNoParenthesis) + ": " + reason;
+        }
+        if (p.WorkTagIsDisabled(WorkTags.Violent))
+        {
+            return "CannotEquip".Translate(weapon.LabelNoParenthesis) + ": " + "IsIncapableOfViolenceLower".Translate(p.LabelShort, p);
+        }
+        if (p.IsQuestLodger() && (!EquipmentUtility.QuestLodgerCanEquip(weapon, p) || (p.equipment.Primary != null && !EquipmentUtility.QuestLodgerCanUnequip(p.equipment.Primary, p))))
+        {
+            return "CannotEquip".Translate(weapon.LabelNoParenthesis) + ": " + "QuestRelated".Translate();
+        }
+        return null;
+    }
+
+    private static string CantPutAway(Pawn p, ThingWithComps weapon) =>
+        p.IsQuestLodger() && !EquipmentUtility.QuestLodgerCanUnequip(weapon, p) ? "Can't put " + weapon.LabelNoParenthesis + " away: " + "QuestRelated".Translate() : null;
+
+    private static string EquipTip(Pawn p, Thing thing) => p.equipment.Primary is { } held
+        ? "Equip " + thing.LabelNoParenthesis + ", " + held.LabelNoParenthesis + " goes to the inventory"
+        : "Equip " + thing.LabelNoParenthesis;
+
+    private static string PutAwayTip(Thing thing) => "Put " + thing.LabelNoParenthesis + " away in the inventory";
+
+    public static void SwapOrPutAway(Pawn p, ThingWithComps weapon, bool inventory)
+    {
+        SoundDefOf.Tick_High.PlayOneShotOnCamera();
+        if (!inventory)
+        {
+            p.equipment.TryTransferEquipmentToContainer(weapon, p.inventory.innerContainer);
+            return;
+        }
+        if (ceSwitch != null && p.AllComps.FirstOrDefault(c => ceInventory.IsInstanceOfType(c)) is { } ce)
+        {
+            ceSwitch.Invoke(ce, new object[] { weapon, true });
+            return;
+        }
+        p.jobs?.StopAll(false, true);
+        if (p.equipment.Primary != null && !p.equipment.TryTransferEquipmentToContainer(p.equipment.Primary, p.inventory.innerContainer))
+        {
+            return;
+        }
+        p.equipment.AddEquipment((ThingWithComps)p.inventory.innerContainer.Take(weapon, 1));
+        weapon.def.soundInteract?.PlayOneShot(new TargetInfo(p.Position, p.Map));
+    }
+
+    // right click on a row: equip or put away, drop, and the info card
+    public static void Menu(ITab_Pawn_Gear tab, Pawn p, Thing thing, bool inventory, bool swappable, bool locked)
+    {
+        var options = new List<FloatMenuOption>();
+        if (swappable)
+        {
+            var weapon = (ThingWithComps)thing;
+            string cant = inventory ? CantEquip(p, weapon) : CantPutAway(p, weapon);
+            options.Add(cant != null
+                ? new FloatMenuOption(cant, null)
+                : new FloatMenuOption(inventory ? EquipTip(p, thing) : PutAwayTip(thing), () => SwapOrPutAway(p, weapon, inventory)));
+        }
+        if (canControl(tab) && (inventory || canControlColonist(tab) || (p.Spawned && !p.Map.IsPlayerHome)))
+        {
+            options.Add(locked ? new FloatMenuOption("DropThing".Translate() + " (" + "ApparelLockedLower".Translate() + ")", null) : new FloatMenuOption("DropThing".Translate(), () => Drop(tab, p, thing)));
+        }
+        options.Add(new FloatMenuOption("ThingInfo".Translate(), () => Find.WindowStack.Add(new Dialog_InfoCard(thing))));
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 }
