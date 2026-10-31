@@ -37,7 +37,7 @@ public static class GizmoGrid
     public static Func<Rect> CellProvider;
     public static float? SizeOverride;
     public static bool LabelsUnder;
-    private const float Gap = 5f;
+    public const float Gap = 5f;
 
     // only for the selection on the map, while our card shows; Architect's buttons stay as they are
     public static bool Active;
