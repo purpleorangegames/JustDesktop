@@ -434,7 +434,7 @@ public static class GearPanel
             return;
         }
         p.equipment.AddEquipment((ThingWithComps)p.inventory.innerContainer.Take(weapon, 1));
-        weapon.def.soundInteract?.PlayOneShot(new TargetInfo(p.Position, p.Map));
+        weapon.def.soundInteract?.PlayOneShot(new TargetInfo(p.PositionHeld, p.MapHeld));
     }
 
     // right click on a row: equip or put away, drop, and the info card

@@ -61,7 +61,8 @@ public static class Pane
                 return MultiFirst();
             }
             Thing t = Find.Selector.SingleSelectedThing;
-            if (t is not { Spawned: true })
+            // a pawn being carried isn't spawned, but it's still on the map in someone's arms
+            if (t is not { SpawnedOrAnyParentSpawned: true })
             {
                 return null;
             }
@@ -174,7 +175,7 @@ public static class Pane
     }
 
     // where the card goes: the game's corner, centered above the taskbar, or next to the pawn
-    public static Rect Place(Thing p) => Place(SizeFor(p), p.DrawPos);
+    public static Rect Place(Thing p) => Place(SizeFor(p), (p.SpawnedParentOrMe ?? p).DrawPos);
 
     public static Rect Place(Vector2 size, Vector3 drawPos)
     {
@@ -517,7 +518,7 @@ public static class Pane
         Thing first = null;
         foreach (object o in Find.Selector.SelectedObjects)
         {
-            if (o is not Thing { Spawned: true } t)
+            if (o is not Thing { SpawnedOrAnyParentSpawned: true } t)
             {
                 return null;
             }
