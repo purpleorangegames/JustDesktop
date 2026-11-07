@@ -118,7 +118,7 @@ public static class TabPanels
     }
 
     // where the game puts its close button, so the tabs' own layouts still leave room for it
-    private static bool CloseButton(Rect all)
+    public static bool CloseButton(Rect all)
     {
         Rect r = new Rect(all.width - 18f - 6f, 6f, 18f, 18f);
         bool over = Mouse.IsOver(r);

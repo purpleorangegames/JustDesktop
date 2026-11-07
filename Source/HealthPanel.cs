@@ -51,9 +51,12 @@ public static class HealthPanel
     private static readonly List<PawnCapacityDef> capacities = new();
     private static Vector2 scroll;
 
+    // no tab = a caravan pawn's health on the world map, where the game allows no operations
+    private static bool CanOperate(ITab_Pawn_Health tab) => tab != null && allowOperations(tab);
+
     private static bool Operations(ITab_Pawn_Health tab)
     {
-        if (!allowOperations(tab))
+        if (!CanOperate(tab))
         {
             onOperationTab() = false;
         }
@@ -186,7 +189,7 @@ public static class HealthPanel
     // overview and operations as two small tabs at the right of the title
     private static void Tabs(Rect row, ITab_Pawn_Health tab, Pawn p)
     {
-        if (!allowOperations(tab))
+        if (!CanOperate(tab))
         {
             return;
         }
