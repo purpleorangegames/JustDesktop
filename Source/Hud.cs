@@ -169,7 +169,8 @@ public static class Hud
     {
         bool weather = !world && !map.IsPocketMap;
         bool date = !world || map != null || Find.WorldSelector.AnyObjectOrTileSelected;
-        float height = (SpeedAbove ? -4f : TimeControls.TimeButSize.y) + (date ? 4f + DateReadout.Height : 0f) + (weather ? 26f : 0f) + (world ? 0f : 26f);
+        string air = world ? null : Atmosphere.Line(map);
+        float height = (SpeedAbove ? -4f : TimeControls.TimeButSize.y) + (date ? 4f + DateReadout.Height : 0f) + (weather ? 26f : 0f) + (world ? 0f : 26f) + (air != null ? 26f : 0f);
         Rect card = new Rect(cardRight - 210f, y - height - Pad * 2f, 210f, height + Pad * 2f);
         Card(card);
         float x = right - 193f;
@@ -202,6 +203,10 @@ public static class Hud
         Rect temp = new Rect(x - 100f, y - 26f, 293f, 26f);
         Text.Anchor = TextAnchor.UpperRight;
         Widgets.Label(temp, temperatureString());
+        if (air != null)
+        {
+            Widgets.Label(new Rect(temp.x, temp.y - 26f, temp.width, 26f), air);
+        }
         Text.Anchor = TextAnchor.UpperLeft;
         return card.y - 6f;
     }
@@ -410,7 +415,18 @@ public static class Hud
         string temp = temperatureString();
         WeatherDef weather = map.IsPocketMap ? null : map.weatherManager.CurWeatherPerceived;
         string sky = weather?.LabelCap ?? "";
-        float w = two ? Mathf.Max(Text.CalcSize(sky).x, Text.CalcSize(temp).x) : Text.CalcSize(sky.NullOrEmpty() ? temp : sky + "  ·  " + temp).x;
+        // Atmosphere Overhaul's feels-like goes after the temperature, the wind at the top right next to the weather
+        Atmosphere.Read(map, out string feels, out string wind);
+        if (feels != null)
+        {
+            temp += "  ·  " + feels;
+        }
+        bool windTop = two && weather != null && wind != null;
+        if (wind != null && !windTop)
+        {
+            temp += "  ·  " + wind;
+        }
+        float w = two ? Mathf.Max(Text.CalcSize(sky).x + (windTop ? 24f + Text.CalcSize(wind).x : 0f), Text.CalcSize(temp).x) : Text.CalcSize(sky.NullOrEmpty() ? temp : sky + "  ·  " + temp).x;
         Rect card = new Rect(dock.x - Gap - w - Pad * 2f - 4f, dock.y, w + Pad * 2f + 4f, h);
         WeatherCard = card;
         Card(card);
@@ -422,6 +438,12 @@ public static class Hud
             GUI.color = Style.Text;
             Widgets.Label(new Rect(inner.x, top, inner.width + 4f, line), sky);
             GUI.color = Style.Dim;
+            if (windTop)
+            {
+                Text.Anchor = TextAnchor.MiddleRight;
+                Widgets.Label(new Rect(inner.x, top, inner.width, line), wind);
+                Text.Anchor = TextAnchor.MiddleLeft;
+            }
             Widgets.Label(new Rect(inner.x, top + line, inner.width + 4f, line), temp);
         }
         else
