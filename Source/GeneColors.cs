@@ -139,9 +139,14 @@ public static class GeneColors
         }
     }
 
-    private static Have Status(GeneDef def, Pawn viewing, out List<Genepack> inPacks, out List<Pawn> others)
+    private static Have Status(GeneDef def, Pawn viewing, out List<Genepack> inPacks, out List<Pawn> others, ICollection<Thing> skip = null)
     {
         packs.TryGetValue(def, out inPacks);
+        // a genepack of ours being traded or packed doesn't count for itself
+        if (skip != null && inPacks != null)
+        {
+            inPacks = inPacks.Where(p => !skip.Contains(p)).ToList();
+        }
         // the pawn being looked at counts when it's ours: a colonist's genes are always at least in the colony
         holders.TryGetValue(def, out List<Pawn> all);
         bool inColony = all is { Count: > 0 };
@@ -177,6 +182,66 @@ public static class GeneColors
         }
     }
 
+    // trade and caravan rows: a small dot for each gene of a genepack, colored the same way, at the end of its name
+    public static void PackDots(Transferable trad, Rect rect, ref float curX)
+    {
+        if (!JustDesktopMod.Settings.geneColors || trad.AnyThing is not Genepack { GeneSet: { } set } || !ModsConfig.BiotechActive || Current.ProgramState != ProgramState.Playing)
+        {
+            return;
+        }
+        Gather();
+        ICollection<Thing> skip = trad is Tradeable t ? t.thingsColony : trad is TransferableOneWay one ? one.things : null;
+        List<GeneDef> genes = set.GenesListForReading;
+        const float dot = 10f, gap = 3f;
+        float width = genes.Count * dot + (genes.Count - 1) * gap + 6f;
+        curX -= width;
+        Rect area = new Rect(curX, 0f, width, rect.height);
+        string tip = "";
+        for (int i = 0; i < genes.Count; i++)
+        {
+            Have have = Status(genes[i], null, out List<Genepack> inPacks, out List<Pawn> others, skip);
+            Rect r = new Rect(curX + 3f + i * (dot + gap), Mathf.Round((rect.height - dot) / 2f), dot, dot);
+            GUI.color = ColorOf(have);
+            GUI.DrawTexture(r, Dot);
+            GUI.color = Color.white;
+            if (Mouse.IsOver(area))
+            {
+                tip += (tip.Length > 0 ? "\n\n" : "") + genes[i].LabelCap.ToString().Colorize(ColoredText.TipSectionTitleColor) + "\n" + Tip(genes[i], have, inPacks, others);
+            }
+        }
+        if (Mouse.IsOver(area))
+        {
+            TooltipHandler.TipRegion(area, tip);
+        }
+    }
+
+    private static Texture2D dot;
+
+    // a filled circle with a smooth edge
+    private static Texture2D Dot
+    {
+        get
+        {
+            if (dot == null)
+            {
+                const int n = 32;
+                dot = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+                Color32[] px = new Color32[n * n];
+                for (int y = 0; y < n; y++)
+                {
+                    for (int x = 0; x < n; x++)
+                    {
+                        float d = n / 2f - Mathf.Sqrt((x + 0.5f - n / 2f) * (x + 0.5f - n / 2f) + (y + 0.5f - n / 2f) * (y + 0.5f - n / 2f));
+                        px[y * n + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(Mathf.Clamp01(d) * 255f));
+                    }
+                }
+                dot.SetPixels32(px);
+                dot.Apply(false, true);
+            }
+            return dot;
+        }
+    }
+
     private static string Tip(GeneDef def, Have have, List<Genepack> inPacks, List<Pawn> others)
     {
         Color c = ColorOf(have);
@@ -206,6 +271,12 @@ public static class GeneColors
         }
         return tip;
     }
+}
+
+[HarmonyPatch(typeof(TransferableUIUtility), nameof(TransferableUIUtility.DoExtraIcons))]
+public static class GeneColors_TradeRow
+{
+    public static void Prefix(Transferable trad, Rect rect, ref float curX) => GeneColors.PackDots(trad, rect, ref curX);
 }
 
 [HarmonyPatch(typeof(GeneUIUtility), nameof(GeneUIUtility.DrawGenesInfo))]

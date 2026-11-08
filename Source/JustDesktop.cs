@@ -706,7 +706,7 @@ public class JustDesktopMod : Mod
             }
             list.CheckboxLabeled("Modern tab panels", ref s.modernTabs, "Needs, Character, Health, Social, Gear and Log next to the card, in its style and laid out anew");
         }
-        list.CheckboxLabeled("Gene colors", ref s.geneColors, "In a pawn's genes, a colored corner on each gene: green when a gene bank has it alone in a genepack, yellow when only together with other genes, red when only someone in the colony has it (the pawn itself counts), beige when you don't have it. Hover a gene to see where it is");
+        list.CheckboxLabeled("Gene colors", ref s.geneColors, "In a pawn's genes, a colored corner on each gene: green when a gene bank has it alone in a genepack, yellow when only together with other genes, red when only someone in the colony has it (the pawn itself counts), beige when you don't have it. Hover a gene to see where it is. Genepacks in trade and caravan windows get a dot of the same color for each gene");
     }
 
     private static void Hud(Listing_Standard list, Settings s)

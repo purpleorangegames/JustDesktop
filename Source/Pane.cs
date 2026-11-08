@@ -508,7 +508,24 @@ public static class Pane
     private static readonly List<Pawn> multiPawns = new();
     private static readonly List<(string label, int count)> groups = new();
 
-    // all of them things on the map, and not linked storage (the game's pane shows its tabs)
+    // all of them things on the map; linked storage (shelves in one group) also gets its tabs and the group's name
+
+    // the storage group when everything selected belongs to the same one, like the game's pane checks it
+    private static StorageGroup SelectedGroup()
+    {
+        StorageGroup group = null;
+        foreach (object o in Find.Selector.SelectedObjects)
+        {
+            if (o is not IStorageGroupMember { Group: { } g } || group != null && g != group)
+            {
+                return null;
+            }
+            group = g;
+        }
+        return group;
+    }
+
+    private static string GroupLine(StorageGroup group) => "StorageGroupLabel".Translate() + ": " + group.RenamableLabel.CapitalizeFirst() + " (" + (group.MemberCount <= 1 ? "OneBuilding".Translate().ToString() : "NumBuildings".Translate(group.MemberCount).ToString()) + ")";
     private static Thing MultiFirst()
     {
         if (!S.paneMulti)
@@ -524,7 +541,8 @@ public static class Pane
             }
             first ??= t;
         }
-        if (MainButtonDefOf.Inspect.TabWindow is IInspectPane pane && pane.CurTabs != null)
+        // tabs for several things only come with linked storage, those get the group's line and the tabs on the card
+        if (MainButtonDefOf.Inspect.TabWindow is IInspectPane pane && pane.CurTabs != null && SelectedGroup() == null)
         {
             return null;
         }
@@ -613,6 +631,14 @@ public static class Pane
         {
             h += bars.Count * (RowHeight + 2f) + 6f * Scale;
         }
+        if (SelectedGroup() != null)
+        {
+            h += 16f * Scale + 6f * Scale;
+        }
+        if (MainButtonDefOf.Inspect.TabWindow is IInspectPane pane && HasTabs(pane))
+        {
+            h += TabRow + 2f * Scale;
+        }
         return new Vector2(ThingWidth, Mathf.Round(h + Pad - 6f * Scale));
     }
 
@@ -629,6 +655,16 @@ public static class Pane
             float y = 0f;
             Text.Font = Scale >= 1.3f ? GameFont.Medium : GameFont.Small;
             Rect name = new Rect(0f, y, area.width, 24f * Scale);
+            StorageGroup storage = SelectedGroup();
+            if (storage != null)
+            {
+                // the game's rename button for the group, at the right of the name
+                float lineEnd = 0f;
+                Text.Font = GameFont.Small;
+                pane.DoInspectPaneButtons(new Rect(0f, Mathf.Round((name.height - 30f) / 2f), area.width, 30f), ref lineEnd);
+                Text.Font = Scale >= 1.3f ? GameFont.Medium : GameFont.Small;
+                name.width -= lineEnd + 4f;
+            }
             Text.Anchor = TextAnchor.MiddleLeft;
             Text.WordWrap = false;
             Widgets.Label(name, pane.GetLabel(name).Truncate(name.width));
@@ -636,6 +672,16 @@ public static class Pane
             Text.Anchor = TextAnchor.UpperLeft;
             y += 24f * Scale;
             Text.Font = SmallFont;
+            if (storage != null)
+            {
+                GUI.color = Style.Dim;
+                Text.WordWrap = false;
+                Rect line = new Rect(0f, y, area.width, 16f * Scale);
+                Widgets.Label(line, GroupLine(storage).Truncate(line.width));
+                Text.WordWrap = true;
+                GUI.color = Color.white;
+                y += 16f * Scale + 6f * Scale;
+            }
             if (groups.Count > 1)
             {
                 GUI.color = Style.Dim;
@@ -679,6 +725,10 @@ public static class Pane
             for (int i = 0; i < bars.Count; i++)
             {
                 DrawBar(new Rect(0f, y + i * (RowHeight + 2f), area.width, RowHeight), bars[i], null);
+            }
+            if (HasTabs(pane))
+            {
+                DrawTabs(new Rect(0f, area.height - TabRow, area.width, TabRow), pane);
             }
         }
         finally

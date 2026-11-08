@@ -152,6 +152,28 @@ public static class TestTour
         list.Add(("genes", () => Select(Colonist, typeof(ITab_Genes))));
         list.Add(("infocard", () => Find.WindowStack.Add(new Dialog_InfoCard(Colonist))));
         // the colonist with the most genes, so the gene colors have something to show
+        // every building of the biggest linked storage group, the card with the group's line and the Storage tab
+        list.Add(("storagegroup", () =>
+        {
+            List<IStorageGroupMember> members = Map.storageGroups.StorageGroupsForReading.OrderByDescending(g => g.MemberCount).FirstOrDefault()?.members;
+            if (members == null || members.Count < 2)
+            {
+                Log.Warning("[JustDesktop] tour storagegroup: no linked storage");
+                return;
+            }
+            Find.Selector.ClearSelection();
+            foreach (IStorageGroupMember m in members)
+            {
+                if (m is Thing t)
+                {
+                    Find.Selector.Select(t, playSound: false, forceDesignatorDeselect: false);
+                }
+            }
+            if (members[0] is Thing first)
+            {
+                CameraJumper.TryJump(first);
+            }
+        }));
         list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Map.mapPawns.FreeColonistsSpawned.Where(c => c.genes != null).OrderByDescending(c => c.genes.GenesListForReading.Count).FirstOrDefault() ?? Colonist))));
         // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
         list.Add(("gearswap", () => Gear(null)));
