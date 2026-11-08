@@ -85,6 +85,7 @@ public class Settings : ModSettings
     public bool paneThings = true;
     public bool paneMulti = true;
     public bool modernGizmos = true;
+    public bool geneColors = true;
     public bool builderPick = true;
     public bool gizmoGrid = true;
     public bool compactRight;
@@ -205,6 +206,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref paneThings, "paneThings", true);
         Scribe_Values.Look(ref paneMulti, "paneMulti", true);
         Scribe_Values.Look(ref modernGizmos, "modernGizmos", true);
+        Scribe_Values.Look(ref geneColors, "geneColors", true);
         Scribe_Values.Look(ref builderPick, "builderPick", true);
         Scribe_Values.Look(ref gizmoGrid, "gizmoGrid", true);
         Scribe_Values.Look(ref compactRight, "compactRight", false);
@@ -704,6 +706,7 @@ public class JustDesktopMod : Mod
             }
             list.CheckboxLabeled("Modern tab panels", ref s.modernTabs, "Needs, Character, Health, Social, Gear and Log next to the card, in its style and laid out anew");
         }
+        list.CheckboxLabeled("Gene colors", ref s.geneColors, "In a pawn's genes, a colored corner on each gene: green when a gene bank has it alone in a genepack, yellow when only together with other genes, red when only someone in the colony has it (the pawn itself counts), beige when you don't have it. Hover a gene to see where it is");
     }
 
     private static void Hud(Listing_Standard list, Settings s)

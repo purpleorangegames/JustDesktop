@@ -151,7 +151,8 @@ public static class TestTour
         list.Add(("prisoner", () => Select(Map.mapPawns.PrisonersOfColonySpawned.FirstOrDefault(), typeof(ITab_Pawn_Prisoner))));
         list.Add(("genes", () => Select(Colonist, typeof(ITab_Genes))));
         list.Add(("infocard", () => Find.WindowStack.Add(new Dialog_InfoCard(Colonist))));
-        list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Colonist))));
+        // the colonist with the most genes, so the gene colors have something to show
+        list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Map.mapPawns.FreeColonistsSpawned.Where(c => c.genes != null).OrderByDescending(c => c.genes.GenesListForReading.Count).FirstOrDefault() ?? Colonist))));
         // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
         list.Add(("gearswap", () => Gear(null)));
         list.Add(("gearswapped", () => Gear(true)));
@@ -446,5 +447,24 @@ public static class TestTour
             // without the "screenshot saved" note the game shows the next frame, the shot can still catch it
             AccessTools.Field(typeof(ScreenshotTaker), "suppressMessage").SetValue(null, true);
         }
+    }
+}
+
+// test: JUSTDESKTOP_TEST_LOAD=<save name> loads that save from the main menu once, for the tour and screenshots
+[HarmonyPatch(typeof(UIRoot_Entry), nameof(UIRoot_Entry.UIRootOnGUI))]
+public static class TestTour_Load
+{
+    private static string save = Environment.GetEnvironmentVariable("JUSTDESKTOP_TEST_LOAD");
+    private static int frames;
+
+    public static void Postfix()
+    {
+        if (save == null || Event.current.type != EventType.Repaint || LongEventHandler.AnyEventNowOrWaiting || ++frames < 120)
+        {
+            return;
+        }
+        string name = save;
+        save = null;
+        GameDataSaveLoader.LoadGame(name);
     }
 }
