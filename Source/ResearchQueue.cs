@@ -54,13 +54,11 @@ public class ResearchQueue : GameComponent
     {
         List<ResearchProjectDef> order = new();
         HashSet<ResearchProjectDef> seen = new();
+        // the hidden ones too (transport pod needs biofuel refining and machining that way), the game won't start it without them
         void Visit(ResearchProjectDef d)
         {
-            if (d.prerequisites == null)
-            {
-                return;
-            }
-            foreach (ResearchProjectDef pre in d.prerequisites)
+            IEnumerable<ResearchProjectDef> needs = (d.prerequisites ?? Enumerable.Empty<ResearchProjectDef>()).Concat(d.hiddenPrerequisites ?? Enumerable.Empty<ResearchProjectDef>());
+            foreach (ResearchProjectDef pre in needs)
             {
                 if (pre != null && Queueable(pre) && seen.Add(pre))
                 {
