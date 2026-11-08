@@ -8,18 +8,22 @@ using Verse.Sound;
 
 namespace JustDesktop;
 
-// the gizmos with a bar (hemogen and the other gene resources, deathrest, heat and psyfocus) and the mech
+// the gizmos with a bar (hemogen and the other gene resources, deathrest, heat and psyfocus, a child's growth tier
+// and learning) and the mech
 // resurrection charges as small cards in the grid, stacked in one column instead of each taking a tall one: the title
 // and the numbers on a row, a rounded bar under it. Dragging the bar still sets the target, the hemogen pack toggle
 // and tooltips are the game's
 public static class Compact
 {
-    public static bool Is(Gizmo g) => Gizmos.On && (g is Gizmo_Slider || g is GeneGizmo_DeathrestCapacity || g is PsychicEntropyGizmo || g is Gizmo_MechResurrectionCharges);
+    public static bool Is(Gizmo g) => Gizmos.On && (g is Gizmo_Slider || g is GeneGizmo_DeathrestCapacity || g is PsychicEntropyGizmo || g is Gizmo_MechResurrectionCharges || g is Gizmo_GrowthTier);
 
     public static float Width => Mathf.Round(GizmoGrid.Size * 2.6f);
     public static float Height => GizmoGrid.Size;
     // heat and psyfocus have two bars
-    public static float HeightOf(Gizmo g) => g is PsychicEntropyGizmo ? Mathf.Round(GizmoGrid.Size * 1.55f) : Height;
+    public static float HeightOf(Gizmo g) => g is PsychicEntropyGizmo || g is Gizmo_GrowthTier gt && growthChild(gt).needs?.learning != null ? Mathf.Round(GizmoGrid.Size * 1.55f) : Height;
+
+    private static readonly AccessTools.FieldRef<Gizmo_GrowthTier, Pawn> growthChild = AccessTools.FieldRefAccess<Gizmo_GrowthTier, Pawn>("child");
+    private static readonly System.Func<Gizmo_GrowthTier, int, string> growthTip = AccessTools.MethodDelegate<System.Func<Gizmo_GrowthTier, int, string>>(AccessTools.Method(typeof(Gizmo_GrowthTier), "GrowthTierTooltip"));
 
     // where the cards go at the left of the selection card: only when the option doesn't keep them with the gizmos,
     // no tab panel (Needs, Health...) is open there, and there's room
@@ -341,6 +345,49 @@ public static class Compact
         return new GizmoResult(GizmoState.Clear);
     }
 
+    // growth tier with the points to the next one, and the learning need under it like heat and psyfocus
+    public static GizmoResult GrowthTier(Gizmo_GrowthTier g, Vector2 topLeft)
+    {
+        Pawn child = growthChild(g);
+        Pawn_AgeTracker age = child.ageTracker;
+        Need_Learning learning = child.needs?.learning;
+        Rect rect = new Rect(topLeft.x, topLeft.y, Width, HeightOf(g));
+        Color back = JustDesktopMod.Settings.windowColor;
+        back.a = 0.92f;
+        GUI.color = back;
+        Widgets.DrawAtlas(rect, ModernWidgets.Fill);
+        GUI.color = Style.Border;
+        Widgets.DrawAtlas(rect, ModernWidgets.Line);
+        GUI.color = Color.white;
+        Rect inner = rect.ContractedBy(6f, 5f);
+        float part = learning != null ? (inner.height - 4f) / 2f : inner.height;
+
+        int tier = age.GrowthTier;
+        float last = GrowthUtility.GrowthTiers[GrowthUtility.GrowthTiers.Length - 1].pointsRequirement;
+        string points = age.AtMaxGrowthTier ? last + " / " + last : Mathf.FloorToInt(age.growthPoints) + " / " + GrowthUtility.GrowthTiers[tier + 1].pointsRequirement;
+        Rect growth = new Rect(inner.x, inner.y, inner.width, part);
+        Header(new Rect(growth.x, growth.y, growth.width, 20f), "StatsReport_GrowthTier".Translate() + " " + tier, points);
+        Bar(new Rect(growth.x, growth.y + 22f, growth.width, growth.height - 22f), age.PercentToNextGrowthTier, new Color(0.45f, 0.72f, 0.4f));
+        if (Mouse.IsOver(growth))
+        {
+            Widgets.DrawBoxSolid(growth, new Color(1f, 1f, 1f, 0.04f));
+        }
+        TooltipHandler.TipRegion(growth, new TipSignal(() => growthTip(g, tier), child.thingIDNumber ^ 0x31F031E9));
+
+        if (learning != null)
+        {
+            Rect learn = new Rect(inner.x, growth.yMax + 4f, inner.width, part);
+            Header(new Rect(learn.x, learn.y, learn.width, 20f), NeedDefOf.Learning.LabelCap, learning.CurLevelPercentage.ToStringPercent());
+            Bar(new Rect(learn.x, learn.y + 22f, learn.width, learn.height - 22f), learning.CurLevelPercentage, new Color(0.45f, 0.63f, 0.96f));
+            if (Mouse.IsOver(learn))
+            {
+                Widgets.DrawBoxSolid(learn, new Color(1f, 1f, 1f, 0.04f));
+            }
+            TooltipHandler.TipRegion(learn, () => learning.GetTipString(), Gen.HashCombineInt(child.thingIDNumber, 4417));
+        }
+        return new GizmoResult(GizmoState.Clear);
+    }
+
     public static GizmoResult Deathrest(GeneGizmo_DeathrestCapacity g, Vector2 topLeft)
     {
         Gene_Deathrest gene = deathrestGene(g);
@@ -433,6 +480,20 @@ public static class Compact_MechCharges
             return true;
         }
         __result = Compact.MechCharges(__instance, topLeft);
+        return false;
+    }
+}
+
+[HarmonyPatch(typeof(Gizmo_GrowthTier), nameof(Gizmo_GrowthTier.GizmoOnGUI))]
+public static class Compact_GrowthTier
+{
+    public static bool Prefix(Gizmo_GrowthTier __instance, Vector2 topLeft, ref GizmoResult __result)
+    {
+        if (!Compact.Drawing)
+        {
+            return true;
+        }
+        __result = Compact.GrowthTier(__instance, topLeft);
         return false;
     }
 }
