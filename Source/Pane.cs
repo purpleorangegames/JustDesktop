@@ -870,6 +870,7 @@ public static class Pane
         }
         Rect info = Next();
         Widgets.InfoCardButton(info.x, info.y, p);
+        PawnMarks.Button(Next(), p);
         if (ModsConfig.BiotechActive && p.genes?.Xenotype != null)
         {
             Rect r = Next();

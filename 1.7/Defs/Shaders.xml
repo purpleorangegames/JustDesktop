@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- flat color in the picture's shape (JD_Outline.frag.glsl, like the game's Silhouette), drawn with the pawns instead of after everything,
+       so the colored outline of a marked pawn stays behind the pawn -->
+  <ShaderDef>
+    <defName>JD_Outline</defName>
+    <shaderProgram>
+      <fragmentShaderFileName>JD_Outline.frag.glsl</fragmentShaderFileName>
+      <transparent>true</transparent>
+      <depthWrite>false</depthWrite>
+      <renderQueue>2900</renderQueue>
+    </shaderProgram>
+  </ShaderDef>
+</Defs>
