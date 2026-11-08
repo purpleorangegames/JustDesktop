@@ -142,7 +142,7 @@ public static class GeneColors
     private static Have Status(GeneDef def, Pawn viewing, out List<Genepack> inPacks, out List<Pawn> others, ICollection<Thing> skip = null)
     {
         packs.TryGetValue(def, out inPacks);
-        // a genepack of ours being traded or packed doesn't count for itself
+        // (unused now: genepacks of ours in a trade count, they're still ours)
         if (skip != null && inPacks != null)
         {
             inPacks = inPacks.Where(p => !skip.Contains(p)).ToList();
@@ -190,7 +190,6 @@ public static class GeneColors
             return;
         }
         Gather();
-        ICollection<Thing> skip = trad is Tradeable t ? t.thingsColony : trad is TransferableOneWay one ? one.things : null;
         List<GeneDef> genes = set.GenesListForReading;
         const float dot = 10f, gap = 3f;
         float width = genes.Count * dot + (genes.Count - 1) * gap + 6f;
@@ -199,7 +198,7 @@ public static class GeneColors
         string tip = "";
         for (int i = 0; i < genes.Count; i++)
         {
-            Have have = Status(genes[i], null, out List<Genepack> inPacks, out List<Pawn> others, skip);
+            Have have = Status(genes[i], null, out List<Genepack> inPacks, out List<Pawn> others);
             Rect r = new Rect(curX + 3f + i * (dot + gap), Mathf.Round((rect.height - dot) / 2f), dot, dot);
             GUI.color = ColorOf(have);
             GUI.DrawTexture(r, Dot);
