@@ -613,6 +613,10 @@ public static class HealthPanel
             return new Rect(x, Mathf.Round(row.center.y - size / 2f), size, size);
         }
         Widgets.InfoCardButton(Next(), c.Hediffs[0]);
+        if (Current.ProgramState == ProgramState.Playing && c.Hediffs[0].pawn != null)
+        {
+            Pinboard.Button(Next(), c.Hediffs[0], c.Hediffs[0].LabelCap + " on " + c.Hediffs[0].pawn.LabelShortCap);
+        }
         float bleeding = c.Hediffs.Sum(h => h.BleedRate);
         if (c.Hediffs.Any(h => h.Bleeding))
         {

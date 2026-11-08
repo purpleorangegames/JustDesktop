@@ -85,6 +85,9 @@ public class Settings : ModSettings
     public bool paneThings = true;
     public bool paneMulti = true;
     public bool modernGizmos = true;
+    // where the pinboard sits (x < 0 = its first place) and folded to its bar
+    public Vector2 pinboardPos = new(-1f, -1f);
+    public bool pinboardFolded;
     public bool geneColors = true;
     public bool builderPick = true;
     public bool gizmoGrid = true;
@@ -206,6 +209,8 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref paneThings, "paneThings", true);
         Scribe_Values.Look(ref paneMulti, "paneMulti", true);
         Scribe_Values.Look(ref modernGizmos, "modernGizmos", true);
+        Scribe_Values.Look(ref pinboardPos, "pinboardPos", new Vector2(-1f, -1f));
+        Scribe_Values.Look(ref pinboardFolded, "pinboardFolded", false);
         Scribe_Values.Look(ref geneColors, "geneColors", true);
         Scribe_Values.Look(ref builderPick, "builderPick", true);
         Scribe_Values.Look(ref gizmoGrid, "gizmoGrid", true);

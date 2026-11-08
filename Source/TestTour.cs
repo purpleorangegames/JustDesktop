@@ -213,6 +213,52 @@ public static class TestTour
             }
             l?.OpenLetter();
         }));
+        // one of each pinned: a colonist, a health condition, a quest and a bill, then the quest window and a bench's bills
+        list.Add(("pins", () =>
+        {
+            Pawn p = Map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
+            if (p != null && !Pinboard.IsPinned(p))
+            {
+                Pinboard.Toggle(p);
+            }
+            Hediff h = Map.mapPawns.FreeColonistsSpawned.SelectMany(c => c.health.hediffSet.hediffs).FirstOrDefault(x => x.Visible && x is not Hediff_MissingPart);
+            if (h != null && !Pinboard.IsPinned(h))
+            {
+                Pinboard.Toggle(h);
+            }
+            Quest q = Find.QuestManager.QuestsListForReading.FirstOrDefault(x => x.State == QuestState.Ongoing) ?? Find.QuestManager.QuestsListForReading.FirstOrDefault(x => x.State == QuestState.NotYetAccepted);
+            if (q != null && !Pinboard.IsPinned(q))
+            {
+                Pinboard.Toggle(q);
+            }
+            Bill b = Map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>().SelectMany(t => t.BillStack.Bills).FirstOrDefault();
+            if (b != null && !Pinboard.IsPinned(b))
+            {
+                Pinboard.Toggle(b);
+            }
+            Building_WorkTable bench = Map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>().FirstOrDefault(t => t.BillStack.Count > 1) ?? Map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>().FirstOrDefault();
+            if (bench != null && !Pinboard.IsPinned(bench))
+            {
+                Pinboard.Toggle(bench);
+            }
+        }));
+        list.Add(("pinsquest", () =>
+        {
+            Quest q = Find.QuestManager.QuestsListForReading.FirstOrDefault(x => Pinboard.IsPinned(x));
+            Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Quests);
+            if (q != null)
+            {
+                ((MainTabWindow_Quests)MainButtonDefOf.Quests.TabWindow).Select(q);
+            }
+        }));
+        list.Add(("pinsbills", () =>
+        {
+            Building_WorkTable t = Map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>().FirstOrDefault(x => x.BillStack.Count > 0);
+            if (t != null)
+            {
+                Select(t, typeof(ITab_Bills));
+            }
+        }));
         list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Map.mapPawns.FreeColonistsSpawned.Where(c => c.genes != null).OrderByDescending(c => c.genes.GenesListForReading.Count).FirstOrDefault() ?? Colonist))));
         // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
         list.Add(("gearswap", () => Gear(null)));

@@ -871,6 +871,7 @@ public static class Pane
         Rect info = Next();
         Widgets.InfoCardButton(info.x, info.y, p);
         PawnMarks.Button(Next(), p);
+        Pinboard.Button(Next().ContractedBy(Mathf.Round(2f * Scale)), p, p.LabelShortCap);
         if (ModsConfig.BiotechActive && p.genes?.Xenotype != null)
         {
             Rect r = Next();
