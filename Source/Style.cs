@@ -112,6 +112,7 @@ public static class Style
     public static readonly Color DockLabel = new(0.06f, 0.07f, 0.09f, 0.94f);
     public static readonly Color MacClose = new(1f, 0.37f, 0.34f, 1f);
     public static readonly Color MacMaximize = new(0.16f, 0.79f, 0.25f, 1f);
+    public static readonly Color MacMinimize = new(1f, 0.74f, 0.18f, 1f);
 
     private static Texture2D _start;
 
@@ -124,6 +125,8 @@ public static class Style
     public static Texture2D Restore => _restore ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Window/Restore");
     private static Texture2D _close;
     public static Texture2D Close => _close ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Window/Close");
+    private static Texture2D _minimize;
+    public static Texture2D Minimize => _minimize ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Window/Minimize");
     private static Texture2D _round;
     public static Texture2D Round => _round ??= ContentFinder<Texture2D>.Get("UI/JustDesktop/Round");
     private static Texture2D _circle;

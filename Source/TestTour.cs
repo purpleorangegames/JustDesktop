@@ -202,6 +202,17 @@ public static class TestTour
                 Find.WindowStack.Add(new Window_Mark(p, new Vector2(UI.screenWidth / 2f - 120f, UI.screenHeight / 2f - 140f)));
             };
         }));
+        // the newest letter opened, to see its minimize button
+        list.Add(("letter", () =>
+        {
+            Letter l = Find.LetterStack.LettersListForReading.LastOrDefault();
+            if (l == null)
+            {
+                Find.LetterStack.ReceiveLetter("Test letter", "A letter to try the minimize button on.", LetterDefOf.NeutralEvent);
+                l = Find.LetterStack.LettersListForReading.LastOrDefault();
+            }
+            l?.OpenLetter();
+        }));
         list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Map.mapPawns.FreeColonistsSpawned.Where(c => c.genes != null).OrderByDescending(c => c.genes.GenesListForReading.Count).FirstOrDefault() ?? Colonist))));
         // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
         list.Add(("gearswap", () => Gear(null)));
