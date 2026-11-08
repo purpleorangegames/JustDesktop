@@ -28,6 +28,22 @@ public static class TestTour
 
     private static Map Map => Find.CurrentMap;
 
+    private static void OpenTestTrade(Func<Tradeable, bool> pick, bool slaves = false)
+    {
+        Pawn negotiator = Map.mapPawns.FreeColonistsSpawned.FirstOrDefault();
+        TraderKindDef kind = DefDatabase<TraderKindDef>.AllDefsListForReading.FirstOrDefault(k => k.orbital && (!slaves || k.stockGenerators.Any(g => g is StockGenerator_Slaves)));
+        if (negotiator == null || kind == null)
+        {
+            return;
+        }
+        TradeShip ship = new TradeShip(kind);
+        Map.passingShipManager.AddShip(ship);
+        ship.GenerateThings();
+        Dialog_Trade dialog = new Dialog_Trade(negotiator, ship);
+        Find.WindowStack.Add(dialog);
+        TransferHover.TestHover = TradeSession.deal.AllTradeables.FirstOrDefault(pick)?.AnyThing;
+    }
+
     private static void Gear(bool? swap)
     {
         Pawn p = Map.mapPawns.FreeColonistsSpawned.FirstOrDefault(c => c.inventory != null && c.inventory.innerContainer.Any(t => t.def.IsWeapon))
@@ -259,6 +275,10 @@ public static class TestTour
                 Select(t, typeof(ITab_Bills));
             }
         }));
+        // a trade window with a made up orbital trader: a colonist of ours hovered (card at the left), then one of
+        // the trader's things (card at the right)
+        list.Add(("hoverpawn", () => OpenTestTrade(t => t.AnyThing is Pawn { RaceProps.Humanlike: true } && t.CountHeldBy(Transactor.Trader) > 0, slaves: true)));
+        list.Add(("hoveritem", () => OpenTestTrade(t => t.CountHeldBy(Transactor.Trader) > 0 && t.CountHeldBy(Transactor.Colony) == 0 && t.AnyThing is not Pawn)));
         list.Add(("viewgenes", () => Find.WindowStack.Add(new Dialog_ViewGenes(Map.mapPawns.FreeColonistsSpawned.Where(c => c.genes != null).OrderByDescending(c => c.genes.GenesListForReading.Count).FirstOrDefault() ?? Colonist))));
         // a colonist with a weapon in the inventory: the Gear tab, then after swapping, then after putting it away
         list.Add(("gearswap", () => Gear(null)));

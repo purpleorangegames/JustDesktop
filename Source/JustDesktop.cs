@@ -85,6 +85,7 @@ public class Settings : ModSettings
     public bool paneThings = true;
     public bool paneMulti = true;
     public bool modernGizmos = true;
+    public bool tradeHoverCard = true;
     // where the pinboard sits (x < 0 = its first place) and folded to its bar
     public Vector2 pinboardPos = new(-1f, -1f);
     public bool pinboardFolded;
@@ -209,6 +210,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref paneThings, "paneThings", true);
         Scribe_Values.Look(ref paneMulti, "paneMulti", true);
         Scribe_Values.Look(ref modernGizmos, "modernGizmos", true);
+        Scribe_Values.Look(ref tradeHoverCard, "tradeHoverCard", true);
         Scribe_Values.Look(ref pinboardPos, "pinboardPos", new Vector2(-1f, -1f));
         Scribe_Values.Look(ref pinboardFolded, "pinboardFolded", false);
         Scribe_Values.Look(ref geneColors, "geneColors", true);
@@ -752,6 +754,8 @@ public class JustDesktopMod : Mod
         list.CheckboxLabeled("Animals that follow their master when drafted", ref s.tradeFollow);
         list.CheckboxLabeled("Colonists' gender", ref s.tradeColonistGender);
         list.CheckboxLabeled("Colonists' age", ref s.tradeColonistAge);
+        list.Gap(6f);
+        list.CheckboxLabeled("A card when hovering a row", ref s.tradeHoverCard, "Next to the window: a pawn's bio with traits and skills, or an item's details. At the left for your things, at the right for the trader's");
     }
 
     private static void ColonistBar(Listing_Standard list, Settings s)

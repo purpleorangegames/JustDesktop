@@ -241,6 +241,17 @@ public static class GeneColors
         }
     }
 
+    // for other cards: the color of a gene and the line saying why
+    public static Color StatusOf(GeneDef def, out string why)
+    {
+        Gather();
+        Have have = Status(def, null, out _, out _);
+        why = have switch { Have.Alone => "in a genepack on its own", Have.Grouped => "only in genepacks with other genes", Have.Someone => "someone in the colony has it", _ => "you don't have it" };
+        return ColorOf(have);
+    }
+
+    public static Texture2D DotTex => Dot;
+
     private static string Tip(GeneDef def, Have have, List<Genepack> inPacks, List<Pawn> others)
     {
         Color c = ColorOf(have);
